@@ -29,6 +29,11 @@
 			path = MarketCoins;
 			sourceTree = "<group>";
 		};
+		3ACE331C2DBFF6E200569CED /* Domain */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Domain;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +50,7 @@
 		3ACE32EB2DBFF4C000569CED = {
 			isa = PBXGroup;
 			children = (
+				3ACE331C2DBFF6E200569CED /* Domain */,
 				3ACE32F62DBFF4C000569CED /* MarketCoins */,
 				3ACE32F52DBFF4C000569CED /* Products */,
 			);
@@ -75,6 +81,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				3ACE32F62DBFF4C000569CED /* MarketCoins */,
+				3ACE331C2DBFF6E200569CED /* Domain */,
 			);
 			name = MarketCoins;
 			packageProductDependencies = (
