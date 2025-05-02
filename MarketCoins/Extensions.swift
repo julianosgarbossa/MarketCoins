@@ -42,10 +42,10 @@ extension Error {
 }
 
 extension Double {
-    func toCurrency() -> String {
+    func toCurrency(coin: CoinsFilterEnum) -> String {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
-        numberFormatter.locale = Locale(identifier: "pt_BR")
+        numberFormatter.locale = Locale(identifier: coin.locale)
         
         guard let value = numberFormatter.string(from: NSNumber(value: self)) else {
             return String(self)
@@ -78,5 +78,11 @@ extension UIImageView {
                 
             }
         }
+    }
+}
+
+extension UIView {
+    func addSubviews(subviews: UIView...) {
+        subviews.forEach(addSubview)
     }
 }

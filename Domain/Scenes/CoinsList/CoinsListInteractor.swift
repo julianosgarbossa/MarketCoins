@@ -40,17 +40,17 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore {
             switch result {
             case .success(let globalModel):
                 self.createGlobalValuesResponse(baseCoin: request.baseCoin, global: globalModel)
-            case .failure(let error):
-                self.presenter?.presentError(error: error)
+            case .failure:
+                self.presenter?.presentErrorForGlobalValues(baseCoin: request.baseCoin)
             }
         })
     }
     
     func doFatchListCoins(request: CoinsList.FetchListCoins.Request) {
-        let baseCoin = request.baseCoin
-        let orderBy = request.orderBy
-        let top = request.top
-        let percentagePrice = request.pricePercentage
+        let baseCoin = request.baseCoin.rawValue
+        let orderBy = request.orderBy.rawValue
+        let top = request.top.rawValue
+        let percentagePrice = request.pricePercentage.rawValue
         
         coinListWorker?.doFetchListCoins(baseCoin: baseCoin,
                                          orderBy: orderBy,
@@ -66,31 +66,32 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore {
         })
     }
     
-    private func createGlobalValuesResponse(baseCoin: String, global: GlobalModel?) {
+    private func createGlobalValuesResponse(baseCoin: CoinsFilterEnum, global: GlobalModel?) {
         if let global {
-            let totalMarketCap = global.data.totalMarketCap.filter { $0.key == baseCoin }
-            let totalVolume = global.data.totalVolume.filter { $0.key == baseCoin }
+            let totalMarketCap = global.data.totalMarketCap.filter { $0.key == baseCoin.rawValue }
+            let totalVolume = global.data.totalVolume.filter { $0.key == baseCoin.rawValue }
             
             let response = CoinsList.FetchGlobalValues.Response(baseCoin: baseCoin,
                                                                 totalMarketCap: totalMarketCap,
                                                                 totalVolume: totalVolume)
             presenter?.presentGlobalValues(response: response)
         } else {
-            self.presenter?.presentError(error: .undefinedError)
+            self.presenter?.presentErrorForGlobalValues(baseCoin: baseCoin)
         }
     }
     
     private func createListCoinResponse(request: CoinsList.FetchListCoins.Request, listCoins: [CoinModel]?) {
         
         if let listCoins {
-            func priceChangePercentage(pricePercentage: String, coin: CoinModel) -> Double {
-                if pricePercentage == "1h" {
+            func priceChangePercentage(pricePercentage: PriceChangePercentageFilerEnum, coin: CoinModel) -> Double {
+                switch pricePercentage {
+                case .lastHour:
                     return coin.priceChangePercentage1H ?? 0.0
-                } else if pricePercentage == "24h" {
+                case .oneDay:
                     return coin.priceChangePercentage24H ?? 0.0
-                } else if pricePercentage == "7d" {
+                case .oneWeek:
                     return coin.priceChangePercentage7D ?? 0.0
-                } else {
+                case .oneMonth:
                     return coin.priceChangePercentage30D ?? 0.0
                 }
             }

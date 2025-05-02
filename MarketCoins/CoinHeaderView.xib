@@ -114,6 +114,9 @@
                 <constraint firstItem="dk4-C7-kxv" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="8" id="rnK-Gc-bJs"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="priceChangePercentageLabel" destination="mcL-FC-f56" id="8lY-f6-lhS"/>
+            </connections>
             <point key="canvasLocation" x="-16.793893129770993" y="-11.267605633802818"/>
         </view>
     </objects>

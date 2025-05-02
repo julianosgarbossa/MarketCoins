@@ -18,7 +18,7 @@ protocol CoinsListDisplayLogic: AnyObject {
     func displayError(error: String)
 }
 
-class CoinsListViewController: UIViewController {
+class CoinsListViewController: ViewController {
     
     @IBOutlet weak var globalCollectionView: UICollectionView! {
         didSet {
@@ -40,26 +40,58 @@ class CoinsListViewController: UIViewController {
         }
     }
     
+    private lazy var coinsFilterView: FiltersView = {
+        let filterView = FiltersView()
+        filterView.isHidden = true
+        filterView.delegate = self
+        filterView.filterOptions = filtersUtils.coinsFilter
+        return filterView
+    }()
+    
+    private lazy var topFilterView: FiltersView = {
+        let filterView = FiltersView()
+        filterView.isHidden = true
+        filterView.delegate = self
+        filterView.filterOptions = filtersUtils.topFilter
+        return filterView
+    }()
+    
+    private lazy var priceChangePercentageFilterView: FiltersView = {
+        let filterView = FiltersView()
+        filterView.isHidden = true
+        filterView.delegate = self
+        filterView.filterOptions = filtersUtils.priceChangePercentageFilter
+        return filterView
+    }()
+    
+    private lazy var orderByFilterView: FiltersView = {
+        let filterView = FiltersView()
+        filterView.isHidden = true
+        filterView.delegate = self
+        filterView.filterOptions = filtersUtils.orderByFilter
+        return filterView
+    }()
+    
     private var globalViewModel: CoinsList.FetchGlobalValues.ViewModel?
     private var coinsViewModel: CoinsList.FetchListCoins.ViewModel?
+    private let filtersUtils = FiltersUtils.shared
     
     var interactor: CoinsListBusinessLogic?
     var router: (NSObjectProtocol & CoinsListRoutingLogic & CoinsListDataPassing)?
     
-    // MARK: Object lifecycle
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        setup()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        setup()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.addSubviews(subviews: coinsFilterView, topFilterView, priceChangePercentageFilterView, orderByFilterView)
+        
+        let nib = UINib(nibName: CoinHeaderView.identifier, bundle: nil)
+        listCoinsTableView.register(nib, forHeaderFooterViewReuseIdentifier: CoinHeaderView.identifier)
+        
+        self.doFetchGlobalValues()
+        self.doFetchListCoins()
     }
     
     // MARK: Setup
-    private func setup() {
+    override func setup() {
         let viewController = self
         let interactor = CoinsListInteractor()
         let presenter = CoinsListPresenter()
@@ -82,26 +114,17 @@ class CoinsListViewController: UIViewController {
         }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        let nib = UINib(nibName: CoinHeaderView.identifier, bundle: nil)
-        listCoinsTableView.register(nib, forHeaderFooterViewReuseIdentifier: CoinHeaderView.identifier)
-        
-        self.doFetchGlobalValues()
-        self.doFetchListCoins()
-    }
-    
     func doFetchGlobalValues() {
-        let request = CoinsList.FetchGlobalValues.Request(baseCoin: "brl")
+        let baseCoin = filtersUtils.getSelectedCoinsFilter()
+        let request = CoinsList.FetchGlobalValues.Request(baseCoin: baseCoin)
         interactor?.doFatchGlobalValues(request: request)
     }
     
     func doFetchListCoins() {
-        let request = CoinsList.FetchListCoins.Request(baseCoin: "brl",
-                                                       orderBy: "market_cap_desc",
-                                                       top: 10,
-                                                       pricePercentage: "1h")
+        let request = CoinsList.FetchListCoins.Request(baseCoin: filtersUtils.getSelectedCoinsFilter(),
+                                                       orderBy: filtersUtils.getSelectedOrderByFilter(),
+                                                       top: filtersUtils.getSelectedTopFilter(),
+                                                       pricePercentage: filtersUtils.getSelectedPriceChangePercentageFilter())
         interactor?.doFatchListCoins(request: request)
     }
 }
@@ -122,12 +145,38 @@ extension CoinsListViewController: CoinsListDisplayLogic {
     }
     
     func displayError(error: String) {
-        print(error)
+        DispatchQueue.main.async {
+            self.showError(message: error) { _ in
+                self.doFetchListCoins()
+            }
+        }
     }
 }
 
 extension CoinsListViewController: UICollectionViewDelegate {
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedFilter = filtersUtils.displayedFilters[indexPath.row]
+        
+        if filtersUtils.coinsFilter.contains(where: { $0.type == selectedFilter.type }) {
+            coinsFilterView.cellRow = indexPath.row
+            coinsFilterView.isHidden = false
+        }
+        
+        if filtersUtils.topFilter.contains(where: { $0.type == selectedFilter.type }) {
+            topFilterView.cellRow = indexPath.row
+            topFilterView.isHidden = false
+        }
+        
+        if filtersUtils.priceChangePercentageFilter.contains(where: { $0.type == selectedFilter.type }) {
+            priceChangePercentageFilterView.cellRow = indexPath.row
+            priceChangePercentageFilterView.isHidden = false
+        }
+        
+        if filtersUtils.orderByFilter.contains(where: { $0.type == selectedFilter.type }) {
+            orderByFilterView.cellRow = indexPath.row
+            orderByFilterView.isHidden = false
+        }
+    }
 }
 
 extension CoinsListViewController: UICollectionViewDataSource {
@@ -135,7 +184,7 @@ extension CoinsListViewController: UICollectionViewDataSource {
         if collectionView == globalCollectionView {
             return globalViewModel?.globalValues.count ?? 0
         }
-        return 4
+        return filtersUtils.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -156,6 +205,8 @@ extension CoinsListViewController: UICollectionViewDataSource {
         if collectionView == filterCollectionView {
             
             if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterViewCell.identifier, for: indexPath) as? FilterViewCell {
+                let displayFilters = filtersUtils.displayedFilters[indexPath.row]
+                cell.setupCell(filter: displayFilters)
                 return cell
             }
         }
@@ -167,6 +218,10 @@ extension CoinsListViewController: UICollectionViewDataSource {
 extension CoinsListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CoinHeaderView.identifier) as? CoinHeaderView {
+            
+            if let filter = filtersUtils.displayedFilters.filter({ $0.type == .priceChangePercentage }).first {
+                header.setupPriceChangePercengate(filter: filter)
+            }
             return header
         }
         return UIView()
@@ -201,5 +256,24 @@ extension CoinsListViewController: UITableViewDataSource {
             return cell
         }
         return UITableViewCell()
+    }
+}
+
+extension CoinsListViewController: ToolbarFiltersViewDelegate {
+    
+    func filtersView(filtersView: FiltersView, filter: Filter, row: Int) {
+        filtersUtils.setSelectedFilter(filter: filter, index: row)
+        
+        filterCollectionView.reloadData()
+        
+        doFetchGlobalValues()
+        
+        doFetchListCoins()
+        
+        cancelFilter(filtersView: filtersView)
+    }
+    
+    func cancelFilter(filtersView: FiltersView) {
+        filtersView.isHidden = true
     }
 }
