@@ -18,7 +18,7 @@ protocol CoinsListBusinessLogic {
 }
 
 protocol CoinsListDataStore {
-    //var name: String { get set }
+    var coins: [CoinModel]? { get set }
 }
 
 class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore {
@@ -26,6 +26,7 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore {
     var presenter: CoinsListPresentationLogic?
     var globalValuesWorker: GlobalValuesWorker?
     var coinListWorker: CoinsListWorker?
+    var coins: [CoinModel]?
     
     init(presenter: CoinsListPresentationLogic = CoinsListPresenter(),
          globalValuesWorker: GlobalValuesWorker = GlobalValuesWorker(),
@@ -59,6 +60,7 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore {
                                          completion: { result in
             switch result {
             case .success(let listCoinsModel):
+                self.coins = listCoinsModel
                 self.createListCoinResponse(request: request, listCoins: listCoinsModel)
             case .failure(let error):
                 self.presenter?.presentError(error: error)

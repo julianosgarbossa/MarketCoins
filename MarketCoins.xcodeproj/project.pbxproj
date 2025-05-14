@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3A7BAF2B2DD50A0D00043FA1 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 3A7BAF2A2DD50A0D00043FA1 /* DGCharts */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3ACE32F42DBFF4C000569CED /* MarketCoins.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MarketCoins.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -41,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A7BAF2B2DD50A0D00043FA1 /* DGCharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +90,7 @@
 			);
 			name = MarketCoins;
 			packageProductDependencies = (
+				3A7BAF2A2DD50A0D00043FA1 /* DGCharts */,
 			);
 			productName = MarketCoins;
 			productReference = 3ACE32F42DBFF4C000569CED /* MarketCoins.app */;
@@ -114,6 +120,9 @@
 			);
 			mainGroup = 3ACE32EB2DBFF4C000569CED;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3A7BAF292DD50A0D00043FA1 /* XCRemoteSwiftPackageReference "Charts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3ACE32F52DBFF4C000569CED /* Products */;
 			projectDirPath = "";
@@ -356,6 +365,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3A7BAF292DD50A0D00043FA1 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielgindi/Charts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3A7BAF2A2DD50A0D00043FA1 /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3A7BAF292DD50A0D00043FA1 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3ACE32EC2DBFF4C000569CED /* Project object */;
 }

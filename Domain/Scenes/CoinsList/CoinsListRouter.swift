@@ -12,49 +12,43 @@
 
 import UIKit
 
-@objc protocol CoinsListRoutingLogic
-{
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
+@objc protocol CoinsListRoutingLogic {
+    func routeToCoin(segue: UIStoryboardSegue?)
 }
 
-protocol CoinsListDataPassing
-{
-  var dataStore: CoinsListDataStore? { get }
+protocol CoinsListDataPassing {
+    var dataStore: CoinsListDataStore? { get }
 }
 
-class CoinsListRouter: NSObject, CoinsListRoutingLogic, CoinsListDataPassing
-{
-  weak var viewController: CoinsListViewController?
-  var dataStore: CoinsListDataStore?
-  
-  // MARK: Routing
-  
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
-  //{
-  //  if let segue = segue {
-  //    let destinationVC = segue.destination as! SomewhereViewController
-  //    var destinationDS = destinationVC.router!.dataStore!
-  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-  //  } else {
-  //    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-  //    let destinationVC = storyboard.instantiateViewController(withIdentifier: "SomewhereViewController") as! SomewhereViewController
-  //    var destinationDS = destinationVC.router!.dataStore!
-  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-  //    navigateToSomewhere(source: viewController!, destination: destinationVC)
-  //  }
-  //}
-
-  // MARK: Navigation
-  
-  //func navigateToSomewhere(source: CoinsListViewController, destination: SomewhereViewController)
-  //{
-  //  source.show(destination, sender: nil)
-  //}
-  
-  // MARK: Passing data
-  
-  //func passDataToSomewhere(source: CoinsListDataStore, destination: inout SomewhereDataStore)
-  //{
-  //  destination.name = source.name
-  //}
+class CoinsListRouter: NSObject, CoinsListRoutingLogic, CoinsListDataPassing {
+    
+    weak var viewController: CoinsListViewController?
+    var dataStore: CoinsListDataStore?
+    
+    // MARK: Routing
+    
+    func routeToCoin(segue: UIStoryboardSegue?) {
+        if let segue = segue {
+            let destinationVC = segue.destination as! CoinViewController
+            var destinationDS = destinationVC.router!.dataStore!
+            passDataToCoin(source: dataStore!, destination: &destinationDS)
+        } else {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let destinationVC = storyboard.instantiateViewController(withIdentifier: "SomewhereViewController") as! CoinViewController
+            var destinationDS = destinationVC.router!.dataStore!
+            passDataToCoin(source: dataStore!, destination: &destinationDS)
+            navigateToCoin(source: viewController!, destination: destinationVC)
+        }
+    }
+    
+    // MARK: Navigation
+    func navigateToCoin(source: CoinsListViewController, destination: CoinViewController) {
+        source.show(destination, sender: nil)
+    }
+    
+    // MARK: Passing data
+    func passDataToCoin(source: CoinsListDataStore, destination: inout CoinDataStore) {
+        let selectedRow = viewController?.listCoinsTableView.indexPathForSelectedRow?.row
+        destination.coin = source.coins?[selectedRow ?? 0]
+    }
 }
